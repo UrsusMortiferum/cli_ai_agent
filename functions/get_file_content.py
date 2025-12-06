@@ -12,12 +12,6 @@ def get_file_content(working_directory, file_path):
         return f'Error: File not found or is not a regular file: "{file_path}"'
     try:
         with open(abs_file_path, "r") as f:
-            # One option to print message if file contains more than x characters
-            # file_content = f.read(MAX_CHARS + 1)
-            # message = ""
-            # if len(file_content) > MAX_CHARS:
-            #     message = f'\n[...File "{file_path}" truncated at {MAX_CHARS} characters]'
-            # return file_content[:-1] + message
             file_content = f.read(MAX_CHARS)
             if os.path.getsize(abs_file_path) > MAX_CHARS:
                 file_content += (
