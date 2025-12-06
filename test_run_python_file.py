@@ -19,7 +19,6 @@ def _run_and_print(working_directory: str, file_path: str, args: None):
 
 
 def test():
-    # for working_directory, file_path, args: None in TEST_CASES:
     for case in TEST_CASES:
         working_directory, file_path, *rest = case
         args = rest[0] if rest else None

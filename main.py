@@ -5,6 +5,8 @@ import argparse
 from google.genai import types
 import sys
 from call_function import available_functions
+from prompts import system_prompt
+from config import MODEL
 
 
 def main():
@@ -27,8 +29,11 @@ def main():
 
 def generate_content(client, messages, verbose):
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model=MODEL,
         contents=messages,
+        config=types.GenerateContentConfig(
+            tools=[available_functions], system_instruction=system_prompt
+        ),
     )
     if not response.usage_metadata:
         raise RuntimeError("Probable failed API request")
@@ -37,33 +42,15 @@ def generate_content(client, messages, verbose):
         print("Prompt tokens:", response.usage_metadata.prompt_token_count)
         print("Response tokens:", response.usage_metadata.candidates_token_count)
 
-    print("Response:")
-    print(response.text)
+    if response.function_calls:
+        for function_call_part in response.function_calls:
+            print(
+                f"Calling function: {function_call_part.name}({function_call_part.args})"
+            )
+    else:
+        print("Response:")
+        print(response.text)
 
 
-# def generate_content(client, messages, verbose):
-#     response = client.models.generate_content(
-#         model="gemini-2.5-flash",
-#         # contents=messages,
-#         contents="Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum.",
-#         # config=types.GenerateContentConfig(
-#         #     tools=[available_functions], system_instruction=system_prompt
-#         # ),
-#     )
-#
-#     if not response.function_calls:
-#         return response.text
-#     for function_call_part in response.function_calls:
-#         print(f"Calling function: {function_call_part.name}({function_call_part.args})")
-#
-#     # function_call_part = response.function_calls
-#     # if function_call_part:
-#     # print(response.function_calls)
-#     # if response.function_calls != []:
-#     # if response.function_calls:
-#     #     for function_call_part in response.function_calls:
-#     #         print(
-#     #             f"Calling function: {function_call_part.name}({function_call_part.args})"
-#     #         )
 if __name__ == "__main__":
     main()
